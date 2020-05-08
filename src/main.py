@@ -221,6 +221,10 @@ def main():
         odooUrl,
         full_path
     )
+
+    logging.critical(
+        "Import is complete"
+    )
     
 
 

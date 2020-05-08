@@ -7,7 +7,9 @@ from .importers import (
     import_buildings,
     import_regions,
     import_skill_levels,
-    import_sub_skills
+    import_sub_skills,
+    import_skills,
+    import_employees
 )
 
 logger = logging 
@@ -53,7 +55,7 @@ def import_data_to_odoo(
         url
     )
 
-    
+
     try:
         import_departments(
             save_path,
@@ -108,7 +110,6 @@ def import_data_to_odoo(
         raise e
     
     
-    
     try:
         import_skill_levels(
             save_path,
@@ -131,5 +132,31 @@ def import_data_to_odoo(
             password
         )
     except Exception as e:
-        logger.critical("Failed to import sub skill")
+        logger.critical("Failed to import sub skills")
+        raise e
+    
+
+    try:
+        import_skills(
+            save_path,
+            models,
+            db,
+            uid,
+            password
+        )
+    except Exception as e:
+        logger.critical("Failed to import skills")
+        raise e
+
+
+    try:
+        import_employees(
+            save_path,
+            models,
+            db,
+            uid,
+            password
+        )
+    except Exception as e:
+        logging.critical("Failed to import employees")
         raise e
