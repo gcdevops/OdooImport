@@ -3,7 +3,7 @@ import os
 import sys
 import logging 
 import xmlrpc.client
-from .utils.translate import create_or_update_translation 
+from .utils.crud import create_record, update_record
 
 logger = logging 
 
@@ -56,63 +56,32 @@ def import_departments(
 
         if(parent_dept):
             dept_def['parent_id'] = parent_dept[0]['res_id']
-
-        if not dept:
-            # check whether external id currently exists
-            dept_id = models.execute(
-                db,uid,password,
-                'hr.department',
-                'create',
-                dept_def
-            )
-
-            # create the external ID
-            models.execute(
-                db, uid, password,
-                'ir.model.data', 'create',
-                {
-                    'name': row_id,
-                    'module': '__import__',
-                    'model': 'hr.department',
-                    'res_id': dept_id
-                }
-            )
-
-            create_or_update_translation(
-                models, db, uid, password,
-                'hr.department,name', dept_id,
-                name, name, 'en_CA'
-            )
-        # if the department exists
-        else:
-            dept_id = dept[0]['res_id']
-            models.execute_kw(
-                db, uid, password,
-                'hr.department',
-                'write',
-                [dept_id, dept_def]
-            )
-
-            create_or_update_translation(
-                models, db, uid, password,
-                'hr.department,name', dept_id,
-                name, name, 'en_CA'
-            )
         
-        if ("Translation" in columns):
+        # fetch translation 
+        translation = None 
+        if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
             translation = row["Translation"]
 
-            if(translation == translation and translation != ""):
-                create_or_update_translation(
-                    models, db, uid, password,
-                    'hr.department,name', dept_id,
-                    name, translation, 'fr_CA'
-                )
-        
+        if not dept:
+            create_record(
+                models, db, uid, password, 'hr.department',
+                row_id, dept_def, 'hr.department,name', name,
+                translation
+            )
+
+        else:
+            dept_id = dept[0]["res_id"]
+            update_record(
+                models, db, uid, password, 'hr.department',
+                dept_id, dept_def, 'hr.department,name', name , 
+                translation
+            )
+
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1
     
+    print("\n")
     logger.debug("Departments Imported")
         
 

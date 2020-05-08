@@ -35,8 +35,8 @@ def generate_master_sheet(
 
     # extract columns needed 
     update_raw_data = raw_data_set[[
-        "Region", "Province", "City", 
-        "Office", "Address", "Postal Code", 
+        "Region", "Province", "City",
+        "Phone Number","Office", "Address", "Postal Code", 
         "Desk Location", "Floor", "Division", 
         "Division Number", "EmpName", "Title",
         "Work Email - AD", "Critical Program / Service", 
@@ -58,6 +58,9 @@ def generate_master_sheet(
             matching_employee_df = master_sheet[master_sheet["E-mail Address"] == email]
 
             name = row["EmpName"]
+
+            phone_number = row["Phone Number"]
+            if(phone_number != phone_number): phone_number = ""
 
             title = row["Title"]
             if(title != title): title = ""
@@ -150,6 +153,7 @@ def generate_master_sheet(
                 master_sheet.at[row_index,"Sub Skills"] = sub_skill
                 master_sheet.at[row_index,"VPN"] = has_vpn
                 master_sheet.at[row_index,"AppGate"] = has_appgate
+                master_sheet.at[row_index, "Phone Number"] = phone_number
 
                 if division != "" and division_name != "":
                     master_sheet.at[row_index,"Division"] = division
@@ -174,6 +178,7 @@ def generate_master_sheet(
                 non_matching_count += 1
                 index = master_sheet.shape[0] + 1
                 master_sheet.at[index, "Name"] = name
+                master_sheet.at[index, "Phone Number"] = phone_number
                 master_sheet.at[index, "Title"] = title
                 master_sheet.at[index, "Region"] = region
                 master_sheet.at[index, "Skills"] = skill

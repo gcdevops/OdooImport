@@ -145,7 +145,7 @@ def main():
         )
         raise e
 
-    
+    """
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -212,7 +212,7 @@ def main():
         ),
         full_path
     )
-    
+    """
 
     import_data_to_odoo(
         odooUser,
