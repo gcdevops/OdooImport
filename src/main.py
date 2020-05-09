@@ -222,6 +222,33 @@ def main():
         full_path
     )
 
+
+    try:
+        master_sheet_client = blob_service_client.get_blob_client(
+            container = masterSheetContainer,
+            blob = masterSheetFileName
+        )
+
+        org_sheet_client = blob_service_client.get_blob_client(
+            container= orgSheetContainer,
+            blob = orgSheetFileName
+        )
+    except Exception as e:
+        logging.critical(
+            "Could not successfully connect to Blobs to upload data"
+        )
+        raise e
+
+    with open(os.path.join(full_path, "employee_master_sheet.csv"), "rb") as f:
+        master_sheet_client.upload_data(
+            f
+        )
+    
+    with open(os.path.join(full_path, "org-structure.csv"), "rb") as f:
+        org_sheet_client.upload_data(
+            f
+        )
+    
     logging.critical(
         "Import is complete"
     )
