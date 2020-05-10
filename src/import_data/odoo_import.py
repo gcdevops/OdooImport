@@ -1,6 +1,7 @@
-import xmlrpc.client 
 import os
 import logging
+from . importers.utils.rpc_connect import connect_to_rpc
+from .importers.utils.propegating_thread import PropagatingThread
 from .importers import ( 
     import_departments,
     import_jobs,
@@ -14,31 +15,6 @@ from .importers import (
 
 logger = logging 
 
-def connect_to_rpc(
-    username: str,
-    password: str,
-    db: str,  
-    url: str
-):
-
-    try:
-        common = xmlrpc.client.ServerProxy(
-            url + "/xmlrpc/2/common"
-        )
-        common.version()
-        uid = common.authenticate(
-            db, username, password, {}
-        )
-        models = xmlrpc.client.ServerProxy(
-            url + "/xmlrpc/2/object"
-        )
-
-        return models, uid
-    except Exception as e:
-        logger.critical(
-            "Failed to authenticate against Odoo endpoint"
-        )
-        raise e
 
 
 def import_data_to_odoo(
@@ -56,92 +32,97 @@ def import_data_to_odoo(
     )
 
     db_id_cache = {}
+    threads = []
 
-    try:
-        import_departments(
+    department_thread = PropagatingThread(
+        target=import_departments,
+        args=(
             save_path,
-            models,
-            db,
-            uid,
+            username,
             password,
+            db,
+            url,
             db_id_cache
         )
-    except Exception as e:
-        logger.critical("Failed to import departments")
-        raise e
+    )
+    department_thread.start()
+    threads.append(department_thread)
 
-
-    try:
-        import_jobs(
+    job_thread = PropagatingThread(
+        target=import_jobs,
+        args=(
             save_path,
-            models,
-            db,
-            uid,
+            username,
             password,
+            db,
+            url,
             db_id_cache
         )
-    except Exception as e:
-        logger.critical("Failed to import jobs")
-        raise e
-    
+    )
+    job_thread.start()
+    threads.append(job_thread)
 
-    
-    try:
-        import_buildings(
-            save_path,
-            models,
-            db,
-            uid,
-            password,
-            db_id_cache
-        )
-    except Exception as e:
-        logger.critical("Failed to import buildings")
-        raise e
-    
 
-    
-    try:
-        import_regions(
+    building_thread = PropagatingThread(
+        target=import_buildings,
+        args=(
             save_path,
-            models,
-            db,
-            uid,
+            username,
             password,
+            db,
+            url,
             db_id_cache
         )
-    except Exception as e:
-        logger.critical("Failed to import regions")
-        raise e
-    
-    
-    try:
-        import_skill_levels(
-            save_path,
-            models,
-            db,
-            uid,
-            password,
-            db_id_cache
-        )
-    except Exception as e:
-        logger.critical("Failed to import skill levels")
-        raise e
-    
+    )
+    building_thread.start()
+    threads.append(building_thread)
 
-    try:
-        import_sub_skills(
+    regions_thread = PropagatingThread(
+        target=import_regions,
+        args=(
             save_path,
-            models,
-            db,
-            uid,
+            username,
             password,
+            db,
+            url,
             db_id_cache
         )
-    except Exception as e:
-        logger.critical("Failed to import sub skills")
-        raise e
+    )
+    regions_thread.start()
+    threads.append(regions_thread)
+
+
+    skill_levels_thread = PropagatingThread(
+        target=import_skill_levels,
+        args=(
+            save_path,
+            username,
+            password,
+            db,
+            url,
+            db_id_cache
+        )
+    )
+    skill_levels_thread.start()
+    threads.append(skill_levels_thread)    
     
+    sub_skill_thread = PropagatingThread(
+        target=import_sub_skills,
+        args=(
+            save_path,
+            username,
+            password,
+            db,
+            url,
+            db_id_cache
+        )
+    )
+    sub_skill_thread.start()
+    threads.append(sub_skill_thread)
+
+    for i in threads:
+        i.join()
+
 
     try:
         import_skills(
@@ -155,17 +136,14 @@ def import_data_to_odoo(
     except Exception as e:
         logger.critical("Failed to import skills")
         raise e
+    
 
-    try:
-        import_employees(
-            save_path,
-            models,
-            db,
-            uid,
-            password,
-            db_id_cache
-        )
-    except Exception as e:
-        logging.critical("Failed to import employees")
-        raise e
+    import_employees(
+        save_path,
+        username,
+        password,
+        db,
+        url,
+        db_id_cache
+    )
     

@@ -175,6 +175,28 @@ def generate_employees_csv(
         # generate id
         row_id = generateId(email)
 
+        if name != name:
+            email_array = email.split("@")
+            if len(email_array) >= 1:
+                name_portion = email_array[0]
+                name_array = name_portion.split(".")
+                name_array_processed = []
+                for i in name_array:
+                    portion = i[0].upper()
+                    if len(i) > 1:
+                        portion = portion + i[1:]
+                    
+                    name_array_processed.append(portion)
+                
+                if len(name_array_processed) >=1:
+                    name_array_processed.reverse() 
+                    name = ", ".join(name_array_processed)
+                else:
+                    name = ""
+            else:
+                name = ""
+
+
         if phone != phone:
             phone = ""
         if floor != floor:
