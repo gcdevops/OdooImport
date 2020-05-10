@@ -13,7 +13,8 @@ def import_sub_skills(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug(
         "Import Sub Skills into Odoo"
@@ -48,7 +49,7 @@ def import_sub_skills(
             translation = row["Translation"]
 
         if not sub_skill:
-            create_record(
+            sub_skill_id = create_record(
                 models, db, uid, password,
                 'hr.skill', row_id, {'name': name}, 'hr.skill,name',
                 name, translation
@@ -61,6 +62,8 @@ def import_sub_skills(
                 {'name': name}, 'hr.skill,name',
                 name, translation
             )
+        
+        db_cache[row_id] = sub_skill_id
         
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()

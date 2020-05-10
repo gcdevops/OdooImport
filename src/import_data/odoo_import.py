@@ -55,6 +55,7 @@ def import_data_to_odoo(
         url
     )
 
+    db_id_cache = {}
 
     try:
         import_departments(
@@ -62,7 +63,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import departments")
@@ -75,7 +77,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import jobs")
@@ -89,7 +92,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import buildings")
@@ -103,7 +107,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import regions")
@@ -116,7 +121,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import skill levels")
@@ -129,7 +135,8 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import sub skills")
@@ -142,12 +149,12 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logger.critical("Failed to import skills")
         raise e
-
 
     try:
         import_employees(
@@ -155,8 +162,10 @@ def import_data_to_odoo(
             models,
             db,
             uid,
-            password
+            password,
+            db_id_cache
         )
     except Exception as e:
         logging.critical("Failed to import employees")
         raise e
+    

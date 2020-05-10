@@ -13,7 +13,8 @@ def import_departments(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Importing Departments into Odoo")
     data = pd.read_csv(
@@ -63,7 +64,7 @@ def import_departments(
             translation = row["Translation"]
 
         if not dept:
-            create_record(
+            dept_id = create_record(
                 models, db, uid, password, 'hr.department',
                 row_id, dept_def, 'hr.department,name', name,
                 translation
@@ -77,6 +78,7 @@ def import_departments(
                 translation
             )
 
+        db_cache[row_id] = dept_id
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1

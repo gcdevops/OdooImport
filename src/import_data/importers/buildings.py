@@ -12,7 +12,8 @@ def import_buildings(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Import Buildings into Odoo")
     data = pd.read_csv(
@@ -84,7 +85,7 @@ def import_buildings(
         }
 
         if not building:
-            create_record(
+            building_id = create_record(
                 models, db, uid, password,
                 'res.partner', row_id,
                 building_def
@@ -96,6 +97,8 @@ def import_buildings(
                 'res.partner', building_id, building_def
             )
         
+        db_cache[row_id] = building_id
+
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1

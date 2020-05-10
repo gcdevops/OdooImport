@@ -12,7 +12,8 @@ def import_jobs(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Import Jobs into Odoo")
     data = pd.read_csv(
@@ -59,7 +60,8 @@ def import_jobs(
                 job_id, {'name': job_position}, 'hr.job,name',
                 job_position, translation
             )
-    
+        
+        db_cache[row_id] = job_id
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1

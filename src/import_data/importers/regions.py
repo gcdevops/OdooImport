@@ -12,7 +12,8 @@ def import_regions(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Import Regions into Odoo")
     data = pd.read_csv(
@@ -59,7 +60,8 @@ def import_regions(
                 region_id, {'name': region_position}, 'hr.region,name',
                 region_position, translation
             )
-    
+        
+        db_cache[row_id] = region_id
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1

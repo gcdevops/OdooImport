@@ -12,7 +12,8 @@ def import_employees(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Importing Employees")
 
@@ -55,99 +56,125 @@ def import_employees(
             'x_employee_work_criticality': row["Work criticality"]
         }
 
-
-        department= models.execute_kw(
-            db, uid, password,
-            "ir.model.data",
-            "search_read",
-            [[['name', '=', department_external_id]]],
-            {
-                'fields': ['res_id']
-            }
-        )
-        if department:
-            employee_def["department_id"] =  department[0]['res_id']
+        department_id = db_cache.get(department_external_id)
+        if department_id is None:
+            department= models.execute_kw(
+                db, uid, password,
+                "ir.model.data",
+                "search_read",
+                [[['name', '=', department_external_id]]],
+                {
+                    'fields': ['res_id']
+                }
+            )
+            if department:
+                employee_def["department_id"] =  department[0]['res_id']
+        else:
+            employee_def["department_id"] = department_id
         
+        job_id = db_cache.get(job_external_id)
+        if job_id is None:
+            job = models.execute_kw(
+                db, uid, password,
+                "ir.model.data",
+                "search_read",
+                [[['name', '=', job_external_id]]],
+                {
+                    'fields': ['res_id']
+                }
+            )
+            if job:
+                employee_def['job_id'] = job[0]['res_id']
+        else:
+            employee_def["job_id"] = job_id
 
-        job = models.execute_kw(
-            db, uid, password,
-            "ir.model.data",
-            "search_read",
-            [[['name', '=', job_external_id]]],
-            {
-                'fields': ['res_id']
-            }
-        )
-        if job:
-            employee_def['job_id'] = job[0]['res_id']
+        building_id = db_cache.get(building_external_id)
+        if building_id is None:
+            building = models.execute_kw(
+                db, uid, password,
+                "ir.model.data",
+                "search_read",
+                [[['name', '=', building_external_id]]],
+                {
+                    'fields': ['res_id']
+                }
+            )
+            if building:
+                employee_def['address_id'] = building[0]['res_id']
+        else:
+            employee_def['address_id'] = building_id
 
-        building = models.execute_kw(
-            db, uid, password,
-            "ir.model.data",
-            "search_read",
-            [[['name', '=', building_external_id]]],
-            {
-                'fields': ['res_id']
-            }
-        )
-        if building:
-            employee_def['address_id'] = building[0]['res_id']
-
-        region= models.execute_kw(
-            db, uid, password,
-            'ir.model.data',
-            'search_read',
-            [[['name', '=', region_external_id]]],
-            {
-                'fields': ['res_id']
-            }
-        )
-        if region:
-            employee_def["region_id"] = region[0]['res_id']
+        region_id = db_cache.get(region_external_id)
+        if region_id is None:
+            region= models.execute_kw(
+                db, uid, password,
+                'ir.model.data',
+                'search_read',
+                [[['name', '=', region_external_id]]],
+                {
+                    'fields': ['res_id']
+                }
+            )
+            if region:
+                employee_def["region_id"] = region[0]['res_id']
+        else:
+            employee_def['region_id'] = region_id
         
         employee_skill_def = {}
 
         if skill_level_external_id == skill_level_external_id:
-            skill = models.execute_kw(
-                db, uid, password,
-                'ir.model.data',
-                'search_read',
-                [[['name', '=', skills_external_id]]],
-                {
-                    'fields': ['res_id']
-                }
-            )
 
-            if skill:
-                employee_skill_def['skill_type_id'] = skill[0]['res_id']
+            skill_id = db_cache.get(skills_external_id)
+            if skill_id is None:
+                skill = models.execute_kw(
+                    db, uid, password,
+                    'ir.model.data',
+                    'search_read',
+                    [[['name', '=', skills_external_id]]],
+                    {
+                        'fields': ['res_id']
+                    }
+                )
+
+                if skill:
+                    employee_skill_def['skill_type_id'] = skill[0]['res_id']
+            else:
+                employee_skill_def['skill_type_id'] = skill_id
             
-            sub_skill = models.execute_kw(
-                db, uid, password,
-                'ir.model.data',
-                'search_read',
-                [[['name', '=', sub_skills_external_id]]],
-                {
-                    'fields': ['res_id']
-                }
-            )
-            if sub_skill:
-                employee_skill_def['skill_id'] = sub_skill[0]['res_id']
+            sub_skill_id = db_cache.get(sub_skills_external_id)
+            if sub_skill_id is None:
+                sub_skill = models.execute_kw(
+                    db, uid, password,
+                    'ir.model.data',
+                    'search_read',
+                    [[['name', '=', sub_skills_external_id]]],
+                    {
+                        'fields': ['res_id']
+                    }
+                )
+                if sub_skill:
+                    employee_skill_def['skill_id'] = sub_skill[0]['res_id']
+            else:
+                employee_skill_def['skill_id'] = sub_skill_id
             
+            skill_level_id = db_cache.get(skill_level_external_id)
+            if skill_level_id is None:
+                skill_level= models.execute_kw(
+                    db, uid, password,
+                    'ir.model.data',
+                    'search_read',
+                    [[['name', '=', skill_level_external_id]]],
+                    {
+                        'fields': ['res_id']
+                    }
 
-            skill_level= models.execute_kw(
-                db, uid, password,
-                'ir.model.data',
-                'search_read',
-                [[['name', '=', skill_level_external_id]]],
-                {
-                    'fields': ['res_id']
-                }
-
-            )
-            if skill_level:
-                employee_skill_def['skill_level_id'] = skill_level[0][
-                    'res_id'
-                ]
+                )
+                if skill_level:
+                    employee_skill_def['skill_level_id'] = skill_level[0][
+                        'res_id'
+                    ]
+            else:
+                employee_skill_def['skill_level_id'] = skill_level_id
         
         employee = models.execute_kw(
             db, uid, password,

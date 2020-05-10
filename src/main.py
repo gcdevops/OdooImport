@@ -240,13 +240,13 @@ def main():
         raise e
 
     with open(os.path.join(full_path, "employee_master_sheet.csv"), "rb") as f:
-        master_sheet_client.upload_data(
-            f
+        master_sheet_client.upload_blob(
+            f, overwrite = True
         )
     
     with open(os.path.join(full_path, "org-structure.csv"), "rb") as f:
-        org_sheet_client.upload_data(
-            f
+        org_sheet_client.upload_blob(
+            f, overwrite = True
         )
     
     logging.critical(

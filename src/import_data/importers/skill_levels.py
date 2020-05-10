@@ -12,7 +12,8 @@ def import_skill_levels(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Import Skill Levels into Odoo")
 
@@ -39,7 +40,7 @@ def import_skill_levels(
         )
 
         if not level:
-            create_record(
+            level_id = create_record(
                 models, db, uid, password, 'hr.skill.level',
                 row_id, {'name': name}
             )
@@ -49,7 +50,8 @@ def import_skill_levels(
                 models, db, uid, password, 'hr.skill.level',
                 level_id, {'name': name}
             )
-    
+        
+        db_cache[row_id] = level_id
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1

@@ -12,7 +12,8 @@ def import_skills(
     models: xmlrpc.client.ServerProxy,
     db,
     uid,
-    password
+    password,
+    db_cache
 ):
     logger.debug("Import Skills into Odoo")
     data = pd.read_csv(
@@ -27,16 +28,19 @@ def import_skills(
     count = 0 
     for index, row in data.iterrows():
         sub_skill_external_id = row["skill_ids/id"]
-        sub_skill = models.execute_kw(
-            db, uid, password,
-            'ir.model.data',
-            'search_read',
-            [[['name', '=', sub_skill_external_id]]], {
-                'fields': ['res_id']
-            }
-        )
 
-        sub_skill_id = sub_skill[0]["res_id"]
+        sub_skill_id = db_cache.get(sub_skill_external_id)
+        if sub_skill_id is None:
+            sub_skill = models.execute_kw(
+                db, uid, password,
+                'ir.model.data',
+                'search_read',
+                [[['name', '=', sub_skill_external_id]]], {
+                    'fields': ['res_id']
+                }
+            )
+
+            sub_skill_id = sub_skill[0]["res_id"]
 
         if row["ID"] == row["ID"]:
             row_id = row["ID"]
@@ -52,16 +56,18 @@ def import_skills(
                 }
             )
 
-            skill_level = models.execute_kw(
-                db, uid, password,
-                'ir.model.data',
-                'search_read',
-                [[['name', '=', skill_level_external_id]]], {
-                    'fields': ['res_id']
-                }
-            )
+            skill_level_id = db_cache.get(skill_level_external_id)
+            if skill_level_id is None:
+                skill_level = models.execute_kw(
+                    db, uid, password,
+                    'ir.model.data',
+                    'search_read',
+                    [[['name', '=', skill_level_external_id]]], {
+                        'fields': ['res_id']
+                    }
+                )
 
-            skill_level_id = skill_level[0]['res_id']
+                skill_level_id = skill_level[0]['res_id']
 
             translation = None
             if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
@@ -107,6 +113,8 @@ def import_skills(
                         'skill_type_id': skill_id
                     }
                 )
+            
+            db_cache[row_id] = skill_id
         else:
             update_record(
                 models, db, uid, password,
