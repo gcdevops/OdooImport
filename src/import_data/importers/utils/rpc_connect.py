@@ -1,5 +1,7 @@
 import xmlrpc.client
+import logging 
 
+logger = logging
 
 def connect_to_rpc(
     username: str,

@@ -144,8 +144,7 @@ def main():
             "Could not connect to Azure Storage"
         )
         raise e
-
-    """
+    
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -214,7 +213,7 @@ def main():
     )
     
 
-    """
+
     import_data_to_odoo(
         odooUser,
         odooPassword,
@@ -223,7 +222,7 @@ def main():
         full_path
     )
 
-    """
+    
     try:
         master_sheet_client = blob_service_client.get_blob_client(
             container = masterSheetContainer,
@@ -249,7 +248,7 @@ def main():
         org_sheet_client.upload_blob(
             f, overwrite = True
         )
-    """
+    
     logging.critical(
         "Import is complete"
     )

@@ -32,7 +32,6 @@ def import_data_to_odoo(
     )
 
     db_id_cache = {}
-    """
     threads = []
 
     department_thread = PropagatingThread(
@@ -138,7 +137,7 @@ def import_data_to_odoo(
         logger.critical("Failed to import skills")
         raise e
     
-    """
+
     import_employees(
         save_path,
         username,

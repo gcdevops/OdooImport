@@ -265,11 +265,11 @@ def import_employees(
         data = data.drop_duplicates(subset=["ID"])
 
         threads = []
-        for i in range(0,data.shape[0], 1000):
+        for i in range(0,data.shape[0], 500):
             start = i 
-            end = start + 999
+            end = start + 499
 
-            if end + 1 > data.shape[0]:
+            if end + 1 >= data.shape[0]:
                 end = data.shape[0]
             
             thread = PropagatingThread(
