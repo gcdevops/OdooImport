@@ -4,28 +4,27 @@ import sys
 import logging 
 import xmlrpc.client
 from .utils.crud import create_record, update_record
+from .utils.rpc_connect import connect_to_rpc
+from .utils.propegating_thread import PropagatingThread
 
 logger = logging 
 
-def import_employees(
-    save_path: str,
-    models: xmlrpc.client.ServerProxy,
-    db,
-    uid,
+
+def import_employees_processor(
+    data,
+    username,
     password,
-    db_cache
+    db,
+    url,
+    db_cache,
+    end
 ):
-    logger.debug("Importing Employees")
-
-    data = pd.read_csv(
-        os.path.join(
-            save_path,
-            "odoo-employees-csv.csv"
-        ),
-        encoding = "utf-8"
+    models, uid = connect_to_rpc(
+        username,
+        password,
+        db,
+        url
     )
-
-    count = 0
 
     for index, row in data.iterrows():
         row_id = row["ID"]
@@ -37,8 +36,6 @@ def import_employees(
         sub_skills_external_id = row["Skills/Skill/External ID"]
         skill_level_external_id = row["Skills/Skill Level/External ID"]
         
-        
-
         employee_def = {
             'name': row["Employee Name"],
             'work_email': row["Work Email"],
@@ -242,12 +239,63 @@ def import_employees(
                         'hr.employee.skill', skill_map_id,
                         employee_skill_def
                     )
+    logger.debug(
+        "Rows processed: " + str(end)
+    )   
+
+def import_employees(
+    save_path: str,
+    username,
+    password,
+    db,
+    url,
+    db_cache
+):
+    try:
+        logger.debug("Importing Employees")
+
+        data = pd.read_csv(
+            os.path.join(
+                save_path,
+                "odoo-employees-csv.csv"
+            ),
+            encoding = "utf-8"
+        )
+
+        data = data.drop_duplicates(subset=["ID"])
+
+        threads = []
+        for i in range(0,data.shape[0], 1000):
+            start = i 
+            end = start + 999
+
+            if end + 1 > data.shape[0]:
+                end = data.shape[0]
+            
+            thread = PropagatingThread(
+                target=import_employees_processor,
+                args=(
+                    data.loc[i:end,],
+                    username,
+                    password,
+                    db,
+                    url,
+                    db_cache,
+                    end
+                )
+            )
+
+            thread.start()
+            threads.append(thread)
         
-        sys.stdout.write("\rRows processed: %i" % count)
-        sys.stdout.flush()
-        count +=1
-    
-    print("\n")
-    logger.debug("Skill Levels Imported")
+        [i.join() for i in threads]
+
+
+        logger.debug("Employees Imported")
+    except Exception as e:
+        logger.critical(
+            "Employees import failed"
+        )
+        raise e
 
 
