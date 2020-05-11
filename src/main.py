@@ -157,6 +157,8 @@ def main():
         )
         raise e
 
+    logging.critical("Import is starting")
+    
     update_master_sheet(
         blob_service_client,
         full_path,
