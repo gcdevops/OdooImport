@@ -17,6 +17,7 @@ def import_employees_processor(
     db,
     url,
     db_cache,
+    start,
     end
 ):
     models, uid = connect_to_rpc(
@@ -240,7 +241,7 @@ def import_employees_processor(
                         employee_skill_def
                     )
     logger.debug(
-        "Rows processed: " + str(end)
+        "Rows processed: from: " + str(start) + " to: " + str(end)
     )   
 
 def import_employees(
@@ -249,10 +250,12 @@ def import_employees(
     password,
     db,
     url,
-    db_cache
+    db_cache,
+    batchSize
 ):
     try:
         logger.debug("Importing Employees")
+        logger.debug("Batch Size: " + str(batchSize))
 
         data = pd.read_csv(
             os.path.join(
@@ -265,9 +268,9 @@ def import_employees(
         data = data.drop_duplicates(subset=["ID"])
 
         threads = []
-        for i in range(0,data.shape[0], 500):
+        for i in range(0,data.shape[0], batchSize):
             start = i 
-            end = start + 499
+            end = start + (batchSize - 1)
 
             if end + 1 >= data.shape[0]:
                 end = data.shape[0]
@@ -281,6 +284,7 @@ def import_employees(
                     db,
                     url,
                     db_cache,
+                    start,
                     end
                 )
             )

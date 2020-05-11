@@ -102,7 +102,19 @@ def main():
     orgSheetFileName = os.environ.get(
         "ORG_SHEET_FILE_NAME"
     )
-    
+
+    batchSize = os.environ.get(
+        "IMPORTER_BATCH_SIZE"
+    )
+
+    if not batchSize:
+        batchSize = 1000
+    else:
+        batchSize = int(batchSize)
+        if batchSize < 1:
+            raise ValueError("IMPORTER_BATCH_SIZE must be greater than one")
+
+
     if not connectionString:
         raise ValueError(
             "Environment variable AZURE_CONNECTION_STRING required"
@@ -144,7 +156,7 @@ def main():
             "Could not connect to Azure Storage"
         )
         raise e
-    
+
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -211,15 +223,14 @@ def main():
         ),
         full_path
     )
-    
-
 
     import_data_to_odoo(
         odooUser,
         odooPassword,
         odooDatabase,
         odooUrl,
-        full_path
+        full_path,
+        batchSize
     )
 
     

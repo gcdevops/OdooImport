@@ -22,7 +22,8 @@ def import_data_to_odoo(
     password: str,
     db: str,
     url: str,
-    save_path: str
+    save_path: str,
+    batchSize:int
 ):
     models, uid = connect_to_rpc(
         username,
@@ -122,8 +123,7 @@ def import_data_to_odoo(
 
     for i in threads:
         i.join()
-
-
+    
     try:
         import_skills(
             save_path,
@@ -136,7 +136,6 @@ def import_data_to_odoo(
     except Exception as e:
         logger.critical("Failed to import skills")
         raise e
-    
 
     import_employees(
         save_path,
@@ -144,6 +143,7 @@ def import_data_to_odoo(
         password,
         db,
         url,
-        db_id_cache
+        db_id_cache,
+        batchSize
     )
     
