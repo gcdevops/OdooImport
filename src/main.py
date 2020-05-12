@@ -46,7 +46,7 @@ LOGGING_CONFIG = {
 }
 
 ORGS_TO_IGNORE = [
-    "100000.103642.100832"
+  # "100000.103642.100832"
 ]
 
 logging.config.dictConfig(LOGGING_CONFIG)
