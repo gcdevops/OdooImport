@@ -46,7 +46,7 @@ LOGGING_CONFIG = {
 }
 
 ORGS_TO_IGNORE = [
-  # "100000.103642.100832"
+   "100000.103642.100832"
 ]
 
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -88,7 +88,7 @@ def main():
     masterSheetFileName = os.environ.get(
         "EMPLOYEE_MASTER_SHEET_FILE_NAME"
     )
-    
+
     updatedSheetContainer = os.environ.get(
         "UPDATE_SHEET_CONTAINER"
     )
@@ -122,7 +122,7 @@ def main():
 
     if masterSheetContainer is None or masterSheetFileName is None :
         raise ValueError(
-            "Environment variables " + 
+            "Environment variables " +
             "EMPLOYEE_MASTER_SHEET_CONTAINER and " +
             "EMPLOYEE_MASTER_SHEET_FILE_NAME " +
             "need to be specified"
@@ -130,15 +130,15 @@ def main():
 
     if(updatedSheetContainer is None or updatedSheetFileName is None):
         raise ValueError(
-            "Environment variables " + 
+            "Environment variables " +
             "UPDATE_SHEET_CONTAINER and " +
             "UPDATE_SHEET_FILE_NAME " +
             "need to be specified"
         )
-    
+
     if(orgSheetContainer is None or orgSheetFileName is None):
         raise ValueError(
-            "Environment variables " + 
+            "Environment variables " +
             "ORG_SHEET_CONTAINER and " +
             "ORG_SHEET_FILE_NAME " +
             "need to be specified"
@@ -147,7 +147,7 @@ def main():
     full_path = os.path.abspath("./data")
     if not os.path.isdir(full_path):
         os.mkdir(full_path)
-    
+
 
     try:
         blob_service_client = BlobServiceClient.from_connection_string(connectionString)
@@ -158,7 +158,7 @@ def main():
         raise e
 
     logging.critical("Import is starting")
-    
+
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -170,7 +170,7 @@ def main():
         updatedSheetFileName
     )
 
-    
+
     generate_org_csv(
         os.path.join(
             full_path,
@@ -180,7 +180,7 @@ def main():
         ORGS_TO_IGNORE
     )
 
-    
+
     generate_regions_csv(
         os.path.join(
             full_path,
@@ -188,9 +188,9 @@ def main():
         ),
         full_path
     )
-    
 
-    
+
+
     generate_jobs_csv(
         os.path.join(
             full_path,
@@ -198,7 +198,7 @@ def main():
         ),
         full_path
     )
-    
+
 
     generate_buildings_csv(
         os.path.join(
@@ -209,7 +209,7 @@ def main():
     )
 
 
-    
+
     generate_skills_csv(
         os.path.join(
             full_path,
@@ -235,7 +235,7 @@ def main():
         batchSize
     )
 
-    
+
     try:
         master_sheet_client = blob_service_client.get_blob_client(
             container = masterSheetContainer,
@@ -256,16 +256,16 @@ def main():
         master_sheet_client.upload_blob(
             f, overwrite = True
         )
-    
+
     with open(os.path.join(full_path, "org-structure.csv"), "rb") as f:
         org_sheet_client.upload_blob(
             f, overwrite = True
         )
-    
+
     logging.critical(
         "Import is complete"
     )
-    
+
 
 
 
