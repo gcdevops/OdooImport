@@ -1,5 +1,5 @@
-import pandas as pd 
-import os 
+import pandas as pd
+import os
 import sys
 import logging
 import xmlrpc.client
@@ -37,7 +37,7 @@ def import_buildings(
 
         country_id = models.execute_kw(
             db, uid, password,
-            'ir.model.data', 
+            'ir.model.data',
             'search_read',
             [
                 [
@@ -104,15 +104,15 @@ def import_buildings(
                     models, db, uid, password,
                     'res.partner', building_id, building_def
                 )
-            
+
             db_cache[row_id] = building_id
             count +=1
-        
+
         print("\n")
         logger.debug("Buildings Imported")
-    
+
     except Exception as e:
         logger.critical(
-            "Building import failed"
+            "Building import failed", exc_info=True
         )
         raise e

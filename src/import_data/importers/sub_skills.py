@@ -1,6 +1,6 @@
-import pandas as pd 
-import os 
-import sys 
+import pandas as pd
+import os
+import sys
 import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
@@ -36,7 +36,7 @@ def import_sub_skills(
             ),
             encoding = "utf-8"
         )
-        
+
         columns = list(data.columns)
         count = 0
         for index, row in data.iterrows():
@@ -52,8 +52,8 @@ def import_sub_skills(
                 }
             )
 
-            # fetch translation 
-            translation = None 
+            # fetch translation
+            translation = None
             if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
                 translation = row["Translation"]
 
@@ -71,16 +71,16 @@ def import_sub_skills(
                     {'name': name}, 'hr.skill,name',
                     name, translation
                 )
-            
+
             db_cache[row_id] = sub_skill_id
-            
+
             count +=1
-        
+
         print("\n")
         logger.debug("Sub skills imported")
-    
+
     except Exception as e:
         logger.critical(
-            "Sub skills import failed"
+            "Sub skills import failed", exc_info=True
         )
         raise e

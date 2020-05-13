@@ -1,12 +1,12 @@
-import pandas as pd 
-import os 
-import sys 
-import logging 
+import pandas as pd
+import os
+import sys
+import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
 from .utils.rpc_connect import connect_to_rpc
 
-logger = logging 
+logger = logging
 
 def import_jobs(
     save_path: str,
@@ -48,12 +48,12 @@ def import_jobs(
                 }
             )
 
-            # fetch translation 
-            translation = None 
+            # fetch translation
+            translation = None
             if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
                 translation = row["Translation"]
-            
-            # create job 
+
+            # create job
             if not job:
                 job_id = create_record(
                     models, db, uid, password, 'hr.job',
@@ -68,20 +68,14 @@ def import_jobs(
                     job_id, {'name': job_position}, 'hr.job,name',
                     job_position, translation
                 )
-            
+
             db_cache[row_id] = job_id
             count +=1
-        
+
         print("\n")
         logger.debug("Jobs Imported")
     except Exception as e:
         logger.critical(
-            "Jobs import failed"
+            "Jobs import failed", exc_info=True
         )
         raise e
-
-
-
-
-
-

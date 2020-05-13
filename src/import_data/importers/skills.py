@@ -1,11 +1,11 @@
-import pandas as pd 
-import os 
-import sys 
+import pandas as pd
+import os
+import sys
 import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
 
-logger = logging 
+logger = logging
 
 def import_skills(
     save_path: str,
@@ -25,7 +25,7 @@ def import_skills(
     )
 
     columns = list(data.columns)
-    count = 0 
+    count = 0
     for index, row in data.iterrows():
         sub_skill_external_id = row["skill_ids/id"]
 
@@ -46,7 +46,7 @@ def import_skills(
             row_id = row["ID"]
             name = row["name"]
             skill_level_external_id = row["skill_level_ids/name"]
-            
+
             skill = models.execute_kw(
                 db, uid, password,
                 'ir.model.data',
@@ -95,10 +95,10 @@ def import_skills(
                         'skill_type_id': skill_id
                     }
                 )
-            
+
             else:
                 skill_id = skill[0]['res_id']
-                
+
                 update_record(
                     models, db, uid, password,
                     "hr.skill", sub_skill_id, {
@@ -113,7 +113,7 @@ def import_skills(
                         'skill_type_id': skill_id
                     }
                 )
-            
+
             db_cache[row_id] = skill_id
         else:
             update_record(
@@ -121,12 +121,12 @@ def import_skills(
                 'hr.skill', sub_skill_id,
                 {
                     'skill_type_id': skill_id
-                } 
+                }
             )
-        
+
         sys.stdout.write("\rRows processed: %i" % count)
         sys.stdout.flush()
         count +=1
-    
+
     print("\n")
-    logger.debug("Skill Levels Imported")
+    logger.debug("Skill Levels Imported", exc_info=True)

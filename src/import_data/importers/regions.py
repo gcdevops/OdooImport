@@ -1,12 +1,12 @@
-import pandas as pd 
-import os 
-import sys 
-import logging 
+import pandas as pd
+import os
+import sys
+import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
 from .utils.rpc_connect import connect_to_rpc
 
-logger = logging 
+logger = logging
 
 def import_regions(
     save_path: str,
@@ -48,12 +48,12 @@ def import_regions(
                 }
             )
 
-            # fetch translation 
-            translation = None 
+            # fetch translation
+            translation = None
             if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
                 translation = row["Translation"]
-            
-            # create region 
+
+            # create region
             if not region:
                 region_id = create_record(
                     models, db, uid, password, 'hr.region',
@@ -68,18 +68,12 @@ def import_regions(
                     region_id, {'name': region_position}, 'hr.region,name',
                     region_position, translation
                 )
-            
+
             db_cache[row_id] = region_id
             count +=1
 
         print("\n")
         logger.debug("Regions Imported")
     except Exception as e:
-        logger.critical("Regions import failed")
+        logger.critical("Regions import failed", exc_info=True)
         raise e
-
-
-
-
-
-

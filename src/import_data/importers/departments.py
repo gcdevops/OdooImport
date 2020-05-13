@@ -1,12 +1,12 @@
-import pandas as pd 
-import os 
+import pandas as pd
+import os
 import sys
-import logging 
+import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
 from .utils.rpc_connect import connect_to_rpc
 
-logger = logging 
+logger = logging
 
 
 def import_departments(
@@ -48,7 +48,7 @@ def import_departments(
                 [[['name', '=', row_id]]],
                 {
                     'fields': ['res_id']
-                } 
+                }
             )
 
             parent_dept = models.execute_kw(
@@ -65,9 +65,9 @@ def import_departments(
 
             if(parent_dept):
                 dept_def['parent_id'] = parent_dept[0]['res_id']
-            
-            # fetch translation 
-            translation = None 
+
+            # fetch translation
+            translation = None
             if ("Translation" in columns and row["Translation"] == row["Translation"] and row["Translation"] != ""):
                 translation = row["Translation"]
 
@@ -82,20 +82,16 @@ def import_departments(
                 dept_id = dept[0]["res_id"]
                 update_record(
                     models, db, uid, password, 'hr.department',
-                    dept_id, dept_def, 'hr.department,name', name , 
+                    dept_id, dept_def, 'hr.department,name', name ,
                     translation
                 )
 
             db_cache[row_id] = dept_id
             count +=1
-        
+
         print("\n")
         logger.debug("Departments Imported")
     except Exception as e:
         logger.critical(
-            "Departments import failed"
+            "Departments import failed", exc_info=True
         )
-        
-
-
-

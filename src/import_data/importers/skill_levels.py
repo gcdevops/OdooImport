@@ -1,12 +1,12 @@
-import pandas as pd 
-import os 
+import pandas as pd
+import os
 import sys
 import logging
 import xmlrpc.client
 from .utils.crud import create_record, update_record
 from .utils.rpc_connect import connect_to_rpc
 
-logger = logging 
+logger = logging
 
 def import_skill_levels(
     save_path: str,
@@ -58,7 +58,7 @@ def import_skill_levels(
                     models, db, uid, password, 'hr.skill.level',
                     level_id, {'name': name}
                 )
-            
+
             db_cache[row_id] = level_id
             count +=1
 
@@ -66,6 +66,6 @@ def import_skill_levels(
         logger.debug("Skill Levels Imported")
     except Exception as e:
         logger.critical(
-            "Skill level import failed"
+            "Skill level import failed", exc_info=True
         )
         raise e
