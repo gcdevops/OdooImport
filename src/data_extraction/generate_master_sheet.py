@@ -230,7 +230,7 @@ def generate_master_sheet(
                 master_sheet.at[index, "Device Type"] = device
                 master_sheet.at[index, "Asset Number"] = asset_number
                 master_sheet.at[index, "Critical"] = critical
-                master_sheet.at[index, "Changed"] = True
+                master_sheet.at[index, "Changed"] = changed
         
         sys.stdout.write("\rEmployees Matched: %i New Employees %i" % (matching_count, non_matching_count))
         sys.stdout.flush()
