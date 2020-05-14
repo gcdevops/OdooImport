@@ -51,6 +51,13 @@ def generate_employees_csv(
         encoding="utf-8"
     )
 
+    brm_branches = pd.read_csv(
+        os.path.join(
+            save_path,
+            "odoo-brm-branches-csv.csv"
+        ),
+        encoding="utf-8"
+    )
 
     skills = pd.read_csv(
         os.path.join(
@@ -139,6 +146,7 @@ def generate_employees_csv(
             "Remote access to network",
             "Remote connection tool",
             "Department/External ID",
+            "Branch/External ID",
             "Job Position/External ID",
             "Work Address/External ID",
             "Region/External ID",
@@ -154,6 +162,7 @@ def generate_employees_csv(
     for index, row in raw_data_cleaned.iterrows():
         name = row["Name"]
         email = row["E-mail Address"]
+        branch = row["Branch"]
         phone = row["Phone Number"]
         office = row["Office"]
         floor = row["Floor"]
@@ -261,7 +270,13 @@ def generate_employees_csv(
             except Exception as e:
                 continue
         
-
+        branch_id = ""
+        if branch == branch and branch != "":
+            branch_df = brm_branches[brm_branches["Name"] == branch]
+            try:
+                branch_id = branch_df.iloc[0]["ID"]
+            except:
+                pass
         
         job_id = ""
 
@@ -325,6 +340,7 @@ def generate_employees_csv(
             remote_access_to_network,
             remote_connection_tool,
             department_id,
+            branch_id,
             job_id,
             address_id,
             region_id,

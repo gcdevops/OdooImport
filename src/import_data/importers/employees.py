@@ -33,7 +33,7 @@ def import_employees_processor(
         try:
             changed = row["Changed"]
             row_id = row["ID"]
-            if changed:
+            if changed or not deltasOnly:
                 department_external_id = row["Department/External ID"]
                 job_external_id = row["Job Position/External ID"]
                 building_external_id = row["Work Address/External ID"]
@@ -41,6 +41,7 @@ def import_employees_processor(
                 skills_external_id = row["Skills/Skill Type/External ID"]
                 sub_skills_external_id = row["Skills/Skill/External ID"]
                 skill_level_external_id = row["Skills/Skill Level/External ID"]
+                branch_external_id = row["Branch/External ID"]
 
                 employee_def = {
                     'name': row["Employee Name"],
@@ -74,6 +75,22 @@ def import_employees_processor(
                         employee_def["department_id"] =  department[0]['res_id']
                 else:
                     employee_def["department_id"] = department_id
+                
+                branch_id = db_cache.get(branch_external_id)
+                if branch_id is None:
+                    branch = models.execute_kw(
+                        db, uid, password,
+                        "ir.model.data",
+                        "search_read",
+                        [[["name", "=", branch_external_id]]],
+                        {
+                            'fields': ['res_id']
+                        }
+                    )
+                    if branch:
+                        employee_def["branch_id"] = branch[0]["res_id"]
+                else:
+                    employee_def["branch_id"] = branch_id
 
                 job_id = db_cache.get(job_external_id)
                 if job_id is None:

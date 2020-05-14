@@ -10,6 +10,7 @@ from .importers import (
     import_skill_levels,
     import_sub_skills,
     import_skills,
+    import_brm_branches,
     import_employees
 )
 
@@ -35,7 +36,6 @@ def import_data_to_odoo(
 
     db_id_cache = {}
     threads = []
-
     department_thread = PropagatingThread(
         target=import_departments,
         args=(
@@ -49,6 +49,20 @@ def import_data_to_odoo(
     )
     department_thread.start()
     threads.append(department_thread)
+    
+    brm_branches_thread = PropagatingThread(
+        target=import_brm_branches,
+        args=(
+            save_path,
+            username,
+            password,
+            db,
+            url,
+            db_id_cache
+        )
+    )
+    brm_branches_thread.start()
+    threads.append(brm_branches_thread)
 
     job_thread = PropagatingThread(
         target=import_jobs,
@@ -124,7 +138,7 @@ def import_data_to_odoo(
 
     for i in threads:
         i.join()
-    
+
     try:
         import_skills(
             save_path,

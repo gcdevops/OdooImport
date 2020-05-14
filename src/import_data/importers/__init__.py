@@ -6,3 +6,4 @@ from .skill_levels import import_skill_levels
 from .sub_skills import import_sub_skills
 from .skills import import_skills
 from .employees import import_employees
+from .brm_branches import import_brm_branches
