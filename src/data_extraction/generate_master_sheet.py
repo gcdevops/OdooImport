@@ -41,7 +41,8 @@ def generate_master_sheet(
         "Division Number", "EmpName", "Title",
         "Work Email - AD", "Critical Program / Service", 
         "Sub-Program / Service", "Current Device Type", 
-        "Current Asset Number", "Has Appgate", "Has VPN"
+        "Current Asset Number", "Has Appgate", "Has VPN",
+        "CriticalEmployee", "Changed"
     ]]
 
 
