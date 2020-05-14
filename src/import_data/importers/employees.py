@@ -32,8 +32,8 @@ def import_employees_processor(
     for index, row in data.iterrows():
         try:
             changed = row["Changed"]
+            row_id = row["ID"]
             if changed:
-                row_id = row["ID"]
                 department_external_id = row["Department/External ID"]
                 job_external_id = row["Job Position/External ID"]
                 building_external_id = row["Work Address/External ID"]
@@ -245,6 +245,8 @@ def import_employees_processor(
                                 'hr.employee.skill', skill_map_id,
                                 employee_skill_def
                             )
+            else:
+                logger.debug("Employee skipped, not changed: " + row_id)
         except Exception as e:
             logger.critical(
                 "Record failed: " + row["Work Email"], exc_info=True
