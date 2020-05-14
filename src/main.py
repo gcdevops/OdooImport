@@ -10,6 +10,7 @@ from data_extraction.generate_jobs_csv import generate_jobs_csv
 from data_extraction.generate_buildings_csv import generate_buildings_csv
 from data_extraction.generating_skills_csv import generate_skills_csv
 from data_extraction.generate_employees_csv import generate_employees_csv
+from data_extraction.generate_brm_branches_csv import generate_brm_branches_csv
 from import_data.odoo_import import import_data_to_odoo
 
 LOGGING_CONFIG = {
@@ -168,7 +169,6 @@ def main():
         raise e
 
     logging.critical("Import is starting")
-
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -179,8 +179,7 @@ def main():
         updatedSheetContainer,
         updatedSheetFileName
     )
-
-
+    
     generate_org_csv(
         os.path.join(
             full_path,
@@ -189,9 +188,17 @@ def main():
         full_path,
         ORGS_TO_IGNORE
     )
-
+    
 
     generate_regions_csv(
+        os.path.join(
+            full_path,
+            masterSheetFileName
+        ),
+        full_path
+    )
+
+    generate_brm_branches_csv(
         os.path.join(
             full_path,
             masterSheetFileName
@@ -235,7 +242,7 @@ def main():
         ),
         full_path
     )
-
+    
     import_data_to_odoo(
         odooUser,
         odooPassword,

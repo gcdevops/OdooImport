@@ -54,6 +54,8 @@ def generate_master_sheet(
     master_sheet_columns = list(master_sheet.columns)
     if("Branch" not in master_sheet_columns):
         master_sheet["Branch"] = ""
+    elif len(master_sheet["Branch"].unique()) == 1:
+        master_sheet["Branch"] = ""
     
     if("Changed" not in master_sheet_columns):
         master_sheet["Changed"] = False
@@ -125,6 +127,9 @@ def generate_master_sheet(
             division_name = row["Division"]
             if (division_name != division_name): division_name = ""
 
+            branch = row["Branch"]
+            if (branch != branch): branch = ""
+
             # check if the org exists in the org_sheet
             matching_org_df = raw_org_sheet[raw_org_sheet["Division"] == division ]
             if matching_org_df.shape[0] > 0:
@@ -184,6 +189,7 @@ def generate_master_sheet(
                 master_sheet.at[row_index,"VPN"] = has_vpn
                 master_sheet.at[row_index,"AppGate"] = has_appgate
                 master_sheet.at[row_index, "Phone Number"] = phone_number
+                master_sheet.at[row_index, "Branch"] = branch
 
                 if division != "" and division_name != "":
                     master_sheet.at[row_index,"Division"] = division
@@ -209,6 +215,7 @@ def generate_master_sheet(
                 non_matching_count += 1
                 index = master_sheet.shape[0] + 1
                 master_sheet.at[index, "Name"] = name
+                master_sheet.at[index, "Branch"] = branch
                 master_sheet.at[index, "Phone Number"] = phone_number
                 master_sheet.at[index, "Title"] = title
                 master_sheet.at[index, "Region"] = region
