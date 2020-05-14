@@ -35,7 +35,7 @@ def generate_master_sheet(
 
     # extract columns needed 
     update_raw_data = raw_data_set[[
-        "Region", "Province", "City",
+        "Branch", "Region", "Province", "City",
         "Phone Number","Office", "Address", "Postal Code", 
         "Desk Location", "Floor", "Division", 
         "Division Number", "EmpName", "Title",
@@ -49,6 +49,14 @@ def generate_master_sheet(
         "[A-Z0-9'._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$",
         re.IGNORECASE
     )
+
+    master_sheet_columns = list(master_sheet.columns)
+    if("Branch" not in master_sheet_columns):
+        master_sheet["Branch"] = ""
+    
+    if("Changed" not in master_sheet_columns):
+        master_sheet["Changed"] = False
+
     matching_count = 0
     non_matching_count = 0
     for index, row in update_raw_data.iterrows():
@@ -58,6 +66,27 @@ def generate_master_sheet(
             matching_employee_df = master_sheet[master_sheet["E-mail Address"] == email]
 
             name = row["EmpName"]
+
+            critical = row["CriticalEmployee"]
+            try:
+                num_critical = int(critical)
+                if num_critical == 0:
+                    critical = False 
+                else:
+                    critical = True
+            except:
+                critical = False
+            
+            changed = row["Changed"]
+            try:
+                num_changed = int(changed)
+                if num_changed == 0:
+                    changed = False 
+                else:
+                    changed = True 
+            except:
+                changed = False 
+             
 
             phone_number = row["Phone Number"]
             if(phone_number != phone_number): phone_number = ""
@@ -172,7 +201,8 @@ def generate_master_sheet(
                     master_sheet.at[row_index, "City"] = city
                     master_sheet.at[row_index, "Desk Location"] = desk_location
                 
-                master_sheet.at[row_index, "Critical"] = True 
+                master_sheet.at[row_index, "Critical"] = critical
+                master_sheet.at[row_index, "Changed"] = changed 
                 
             else:
                 non_matching_count += 1
@@ -198,7 +228,8 @@ def generate_master_sheet(
                 master_sheet.at[index, "Division Name"] = division_name
                 master_sheet.at[index, "Device Type"] = device
                 master_sheet.at[index, "Asset Number"] = asset_number
-                master_sheet.at[index, "Critical"] = True
+                master_sheet.at[index, "Critical"] = critical
+                master_sheet.at[index, "Changed"] = True
         
         sys.stdout.write("\rEmployees Matched: %i New Employees %i" % (matching_count, non_matching_count))
         sys.stdout.flush()

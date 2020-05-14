@@ -145,7 +145,8 @@ def generate_employees_csv(
             "Skills/Skill Type/External ID",
             "Skills/Skill/External ID",
             "Skills/Skill Level/External ID",
-            "Work criticality"
+            "Work criticality",
+            "Changed"
         ]
     )
 
@@ -171,6 +172,7 @@ def generate_employees_csv(
         skill = row["Skills"]
         subskill = row["Sub Skills"]
         critical = row["Critical"]
+        changed = row["Changed"]
 
         # generate id
         row_id = generateId(email)
@@ -329,7 +331,8 @@ def generate_employees_csv(
             skill_id,
             subskill_id,
             skill_level_id,
-            critical
+            critical,
+            changed
         ]
 
         employee_csv.loc[count] = row_data
