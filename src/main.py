@@ -107,13 +107,23 @@ def main():
         "IMPORTER_BATCH_SIZE"
     )
 
+    deltasOnly = os.environ.get(
+        "IMPORTER_DELTAS_ONLY"
+    )
+
     if not batchSize:
         batchSize = 1000
     else:
         batchSize = int(batchSize)
         if batchSize < 1:
             raise ValueError("IMPORTER_BATCH_SIZE must be greater than one")
-
+    
+    if not deltasOnly:
+        deltasOnly = False
+    elif deltasOnly == "True":
+        deltasOnly = True 
+    else:
+        deltasOnly = False
 
     if not connectionString:
         raise ValueError(
@@ -232,7 +242,8 @@ def main():
         odooDatabase,
         odooUrl,
         full_path,
-        batchSize
+        batchSize,
+        deltasOnly
     )
 
 

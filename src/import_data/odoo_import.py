@@ -23,7 +23,8 @@ def import_data_to_odoo(
     db: str,
     url: str,
     save_path: str,
-    batchSize:int
+    batchSize:int,
+    deltasOnly: bool 
 ):
     models, uid = connect_to_rpc(
         username,
@@ -144,6 +145,7 @@ def import_data_to_odoo(
         db,
         url,
         db_id_cache,
-        batchSize
+        batchSize,
+        deltasOnly
     )
     
