@@ -268,7 +268,7 @@ def import_employees_processor(
                                 if skill_map_conn:
                                     skill_map_id = skill_map_conn[0]['res_id']
                                     update_record(
-                                        db, uid, password,
+                                        models, db, uid, password,
                                         'hr.employee.skill', skill_map_id,
                                         employee_skill_def
                                     )
