@@ -249,11 +249,29 @@ def import_employees_processor(
                         )
 
                         if not skill_map:
-                            create_record(
-                                models, db, uid, password,
-                                'hr.employee.skill', row_id + "-skill-map",
-                                employee_skill_def
-                            )
+                            try:
+                                create_record(
+                                    models, db, uid, password,
+                                    'hr.employee.skill', row_id + "-skill-map",
+                                    employee_skill_def
+                                )
+                            except:
+                                skill_map_conn = models.execute_kw(
+                                    db, uid, password,
+                                    'ir.model.data',
+                                    'search_read',
+                                    [[['name', '=', row_id + "-skill-map"]]],
+                                    {
+                                        'fields': ['res_id']
+                                    }
+                                )
+                                if skill_map_conn:
+                                    skill_map_id = skill_map_conn[0]['res_id']
+                                    update_record(
+                                        db, uid, password,
+                                        'hr.employee.skill', skill_map_id,
+                                        employee_skill_def
+                                    )
 
                         else:
                             skill_map_id = skill_map[0]['id']
