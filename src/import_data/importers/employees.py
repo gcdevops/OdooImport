@@ -249,10 +249,11 @@ def import_employees_processor(
                         )
 
                         if not skill_map:
+                            skill_map_external_id =  row_id + "-" + employee_skill_def["skill_type_id"] + "-" + employee_skill_def['skill_id'] + "-" + "-skill-map"
                             try:
                                 create_record(
                                     models, db, uid, password,
-                                    'hr.employee.skill', row_id + "-skill-map",
+                                    'hr.employee.skill', skill_map_external_id,
                                     employee_skill_def
                                 )
                             except:
@@ -260,7 +261,7 @@ def import_employees_processor(
                                     db, uid, password,
                                     'ir.model.data',
                                     'search_read',
-                                    [[['name', '=', row_id + "-skill-map"]]],
+                                    [[['name', '=', skill_map_external_id]]],
                                     {
                                         'fields': ['res_id']
                                     }
