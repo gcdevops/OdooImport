@@ -11,6 +11,7 @@ from .importers import (
     import_sub_skills,
     import_skills,
     import_brm_branches,
+    import_classifications,
     import_employees
 )
 
@@ -27,6 +28,7 @@ def import_data_to_odoo(
     batchSize:int,
     deltasOnly: bool 
 ):
+
     models, uid = connect_to_rpc(
         username,
         password,
@@ -136,9 +138,23 @@ def import_data_to_odoo(
     sub_skill_thread.start()
     threads.append(sub_skill_thread)
 
+    classifications_thread = PropagatingThread(
+        target=import_classifications,
+        args=(
+            save_path,
+            username,
+            password,
+            db,
+            url,
+            db_id_cache
+        )
+    )
+    classifications_thread.start()
+    threads.append(classifications_thread)
+
     for i in threads:
         i.join()
-
+    
     try:
         import_skills(
             save_path,
@@ -162,4 +178,3 @@ def import_data_to_odoo(
         batchSize,
         deltasOnly
     )
-    

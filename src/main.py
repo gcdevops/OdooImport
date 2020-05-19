@@ -11,6 +11,7 @@ from data_extraction.generate_buildings_csv import generate_buildings_csv
 from data_extraction.generating_skills_csv import generate_skills_csv
 from data_extraction.generate_employees_csv import generate_employees_csv
 from data_extraction.generate_brm_branches_csv import generate_brm_branches_csv
+from data_extraction.generate_classifications_csv import generate_classifications_csv
 from import_data.odoo_import import import_data_to_odoo
 
 LOGGING_CONFIG = {
@@ -235,6 +236,10 @@ def main():
         full_path
     )
 
+    generate_classifications_csv(
+        full_path
+    )
+
     generate_employees_csv(
         os.path.join(
             full_path,
@@ -242,7 +247,7 @@ def main():
         ),
         full_path
     )
-    
+
     import_data_to_odoo(
         odooUser,
         odooPassword,
