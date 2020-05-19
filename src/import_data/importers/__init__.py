@@ -7,3 +7,4 @@ from .sub_skills import import_sub_skills
 from .skills import import_skills
 from .employees import import_employees
 from .brm_branches import import_brm_branches
+from .classifications import import_classifications
