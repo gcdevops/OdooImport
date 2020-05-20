@@ -48,7 +48,24 @@ LOGGING_CONFIG = {
 }
 
 ORGS_TO_IGNORE = [
-   "100000.103642.100832"
+   # IITB
+   "100000.103642.100832",
+   # Atlantic Region Reg Opertins & Compliance DGO
+   "100000-100762-100713-100905-100908",
+   # Quebec region Reg Opertins & Compliance DGO
+   "100000-100762-100713-100905-100115",
+   # Ontario region Reg Opertins & Compliance DGO
+   "100000-100762-100713-100905-100308",
+   # Ontario region COO Service Canada 
+   "100000-101078-101273",
+   # Atlantic region COO Service Canada
+   "100000-101078-103631",
+   # Quebec region COO Service Canada
+   "100000-101078-10009",
+   # TISMB
+   "100000-101078-104621",
+   # HRSB
+   "100000-103642-100841"
 ]
 
 logging.config.dictConfig(LOGGING_CONFIG)
