@@ -249,7 +249,7 @@ def import_employees_processor(
                         )
 
                         if not skill_map:
-                            skill_map_external_id =  row_id + "-" + employee_skill_def["skill_type_id"] + "-" + employee_skill_def['skill_id'] + "-skill-map"
+                            skill_map_external_id =  row_id + "-" + skills_external_id + "-" + sub_skills_external_id + "-skill-map"
                             try:
                                 create_record(
                                     models, db, uid, password,
