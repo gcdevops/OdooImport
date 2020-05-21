@@ -25,14 +25,7 @@ def create_record(
         }
     )
 
-    if(translation_field is not None):
-        if(en is not None):
-            create_or_update_translation(
-                models, db, uid, password,
-                translation_field, record_id,
-                en, en, 'en_CA'
-            )
-        
+    if(translation_field is not None):  
         if(fr is not None):
             create_or_update_translation(
                 models, db, uid, password,
@@ -56,12 +49,6 @@ def update_record(
     )
 
     if(translation_field is not None):
-        if (en is not None):
-            create_or_update_translation(
-                models, db, uid, password,
-                translation_field, record_id, en, en,
-                'en_CA'
-            )
         if (fr is not None):
             create_or_update_translation(
                 models, db, uid, password,
