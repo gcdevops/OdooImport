@@ -72,7 +72,7 @@ def calculate_diffs(
         for row in employees_in_odoo:
             email = row["work_email"]
             if odoo_email_map.get(email) is not None:
-                odoo_email_map[email]["count"] = email_map[email]["count"] + 1
+                odoo_email_map[email]["count"] = odoo_email_map[email]["count"] + 1
                 if row["x_employee_work_criticality"] is True:
                     odoo_email_map[email]["critical"] = True
             else:
