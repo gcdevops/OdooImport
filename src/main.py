@@ -12,6 +12,7 @@ from data_extraction.generating_skills_csv import generate_skills_csv
 from data_extraction.generate_employees_csv import generate_employees_csv
 from data_extraction.generate_brm_branches_csv import generate_brm_branches_csv
 from data_extraction.generate_classifications_csv import generate_classifications_csv
+from diff_calculator import calculate_diffs
 from import_data.odoo_import import import_data_to_odoo
 
 LOGGING_CONFIG = {
@@ -122,6 +123,10 @@ def main():
         "ORG_SHEET_FILE_NAME"
     )
 
+    diffContainer = os.environ.get(
+        "DIFF_CONTAINER"
+    )
+
     batchSize = os.environ.get(
         "IMPORTER_BATCH_SIZE"
     )
@@ -164,6 +169,12 @@ def main():
             "UPDATE_SHEET_FILE_NAME " +
             "need to be specified"
         )
+    
+    if(diffContainer is None):
+        raise ValueError(
+            "Environment variable " +
+            "DIFF_CONTAINER needs to be specifiedß"
+        )
 
     if(orgSheetContainer is None or orgSheetFileName is None):
         raise ValueError(
@@ -187,6 +198,7 @@ def main():
         raise e
 
     logging.critical("Import is starting")
+    
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -301,6 +313,17 @@ def main():
         org_sheet_client.upload_blob(
             f, overwrite = True
         )
+    
+    calculate_diffs(
+        blob_service_client,
+        diffContainer,
+        full_path,
+        updatedSheetFileName,
+        odooUser,
+        odooPassword,
+        odooDatabase,
+        odooUrl
+    )
 
     logging.critical(
         "Import is complete"
