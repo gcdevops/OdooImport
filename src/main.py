@@ -50,23 +50,33 @@ LOGGING_CONFIG = {
 
 ORGS_TO_IGNORE = [
    # IITB
-   "100000.103642.100832"
+   "100000.103642.100832",
    # Atlantic Region Reg Opertins & Compliance DGO
-   # "100000-100762-100713-100905-100908",
+   "100000-100762-100713-100905-100908",
    # Quebec region Reg Opertins & Compliance DGO
-   # "100000-100762-100713-100905-100115",
+   "100000-100762-100713-100905-100115",
    # Ontario region Reg Opertins & Compliance DGO
-   # "100000-100762-100713-100905-100308",
-   # Ontario region COO Service Canada 
-   # "100000-101078-101273",
+   "100000-100762-100713-100905-100308",
+   # Ontario region COO Service Canada
+   "100000-101078-101273",
    # Atlantic region COO Service Canada
-   # "100000-101078-103631",
+   "100000-101078-103631",
    # Quebec region COO Service Canada
-   # "100000-101078-10009",
+   "100000-101078-10009",
    # TISMB
-   # "100000-101078-104621",
+   "100000-101078-104621",
    # HRSB
-   # "100000-103642-100841"
+   "100000-103642-100841",
+   # ESDC Chief Financial Officer
+   "100000.103642.101064",
+   # Corporate Secretariat
+   "100000.101729.100669",
+   # Income Security and Social Development
+   "100000.103642.100651",
+   # Internal Audit Services
+   "100000.103642.100816",
+   # Learning
+   "100000.103642.100538"
 ]
 
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -141,11 +151,11 @@ def main():
         batchSize = int(batchSize)
         if batchSize < 1:
             raise ValueError("IMPORTER_BATCH_SIZE must be greater than one")
-    
+
     if not deltasOnly:
         deltasOnly = False
     elif deltasOnly == "True":
-        deltasOnly = True 
+        deltasOnly = True
     else:
         deltasOnly = False
 
@@ -169,7 +179,7 @@ def main():
             "UPDATE_SHEET_FILE_NAME " +
             "need to be specified"
         )
-    
+
     if(diffContainer is None):
         raise ValueError(
             "Environment variable " +
@@ -198,7 +208,7 @@ def main():
         raise e
 
     logging.critical("Import is starting")
-    
+
     update_master_sheet(
         blob_service_client,
         full_path,
@@ -209,7 +219,7 @@ def main():
         updatedSheetContainer,
         updatedSheetFileName
     )
-    
+
     generate_org_csv(
         os.path.join(
             full_path,
@@ -218,7 +228,7 @@ def main():
         full_path,
         ORGS_TO_IGNORE
     )
-    
+
 
     generate_regions_csv(
         os.path.join(
@@ -313,7 +323,7 @@ def main():
         org_sheet_client.upload_blob(
             f, overwrite = True
         )
-    
+
     calculate_diffs(
         blob_service_client,
         diffContainer,
