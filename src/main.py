@@ -1,19 +1,15 @@
 import os
 import logging
 import logging.config
+import pandas
 from utils.logging import SlackFormatter, SlackHandler
 from azure.storage.blob import BlobClient, BlobServiceClient, ContainerClient
-from data_extraction.update_master_sheet import update_master_sheet
-from data_extraction.generate_org_csv import generate_org_csv
-from data_extraction.generate_regions_csv import generate_regions_csv
-from data_extraction.generate_jobs_csv import generate_jobs_csv
-from data_extraction.generate_buildings_csv import generate_buildings_csv
-from data_extraction.generating_skills_csv import generate_skills_csv
-from data_extraction.generate_employees_csv import generate_employees_csv
-from data_extraction.generate_brm_branches_csv import generate_brm_branches_csv
-from data_extraction.generate_classifications_csv import generate_classifications_csv
-from diff_calculator import calculate_diffs
-from import_data.odoo_import import import_data_to_odoo
+from data_extraction.download_and_process_update_sheet import download_and_process_update_sheet
+from data_extraction.download_odoo_employee_list import download_odoo_employee_list
+from data_extraction.extract_employee_sets import extract_employee_sets
+from import_data.odoo_only_employees import odoo_only_employees
+from import_data.intersection_employees import intersection_employees
+from import_data.ad_only_employees import ad_only_employees
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -48,39 +44,9 @@ LOGGING_CONFIG = {
     }
 }
 
-ORGS_TO_IGNORE = [
-   # IITB
-   "100000.103642.100832",
-   # Atlantic Region Reg Opertins & Compliance DGO
-   "100000-100762-100713-100905-100908",
-   # Quebec region Reg Opertins & Compliance DGO
-   "100000-100762-100713-100905-100115",
-   # Ontario region Reg Opertins & Compliance DGO
-   "100000-100762-100713-100905-100308",
-   # Ontario region COO Service Canada
-   "100000-101078-101273",
-   # Atlantic region COO Service Canada
-   "100000-101078-103631",
-   # Quebec region COO Service Canada
-   "100000-101078-10009",
-   # TISMB
-   "100000-101078-104621",
-   # HRSB
-   "100000-103642-100841",
-   # ESDC Chief Financial Officer
-   "100000.103642.101064",
-   # Corporate Secretariat
-   "100000.101729.100669",
-   # Income Security and Social Development
-   "100000.103642.100651",
-   # Internal Audit Services
-   "100000.103642.100816",
-   # Learning
-   "100000.103642.100538"
-]
+
 
 logging.config.dictConfig(LOGGING_CONFIG)
-
 
 def main():
     connectionString = os.environ.get(
@@ -111,65 +77,15 @@ def main():
     if not odooDatabase:
         raise ValueError("ODOO_DATABASE")
 
-
-    masterSheetContainer = os.environ.get(
-        "EMPLOYEE_MASTER_SHEET_CONTAINER"
-    )
-    masterSheetFileName = os.environ.get(
-        "EMPLOYEE_MASTER_SHEET_FILE_NAME"
-    )
-
     updatedSheetContainer = os.environ.get(
         "UPDATE_SHEET_CONTAINER"
     )
     updatedSheetFileName = os.environ.get(
         "UPDATE_SHEET_FILE_NAME"
     )
-
-    orgSheetContainer = os.environ.get(
-        "ORG_SHEET_CONTAINER"
-    )
-    orgSheetFileName = os.environ.get(
-        "ORG_SHEET_FILE_NAME"
-    )
-
-    diffContainer = os.environ.get(
-        "DIFF_CONTAINER"
-    )
-
-    batchSize = os.environ.get(
-        "IMPORTER_BATCH_SIZE"
-    )
-
-    deltasOnly = os.environ.get(
-        "IMPORTER_DELTAS_ONLY"
-    )
-
-    if not batchSize:
-        batchSize = 1000
-    else:
-        batchSize = int(batchSize)
-        if batchSize < 1:
-            raise ValueError("IMPORTER_BATCH_SIZE must be greater than one")
-
-    if not deltasOnly:
-        deltasOnly = False
-    elif deltasOnly == "True":
-        deltasOnly = True
-    else:
-        deltasOnly = False
-
     if not connectionString:
         raise ValueError(
             "Environment variable AZURE_CONNECTION_STRING required"
-        )
-
-    if masterSheetContainer is None or masterSheetFileName is None :
-        raise ValueError(
-            "Environment variables " +
-            "EMPLOYEE_MASTER_SHEET_CONTAINER and " +
-            "EMPLOYEE_MASTER_SHEET_FILE_NAME " +
-            "need to be specified"
         )
 
     if(updatedSheetContainer is None or updatedSheetFileName is None):
@@ -180,24 +96,10 @@ def main():
             "need to be specified"
         )
 
-    if(diffContainer is None):
-        raise ValueError(
-            "Environment variable " +
-            "DIFF_CONTAINER needs to be specifiedß"
-        )
-
-    if(orgSheetContainer is None or orgSheetFileName is None):
-        raise ValueError(
-            "Environment variables " +
-            "ORG_SHEET_CONTAINER and " +
-            "ORG_SHEET_FILE_NAME " +
-            "need to be specified"
-        )
 
     full_path = os.path.abspath("./data")
     if not os.path.isdir(full_path):
         os.mkdir(full_path)
-
 
     try:
         blob_service_client = BlobServiceClient.from_connection_string(connectionString)
@@ -208,127 +110,62 @@ def main():
         raise e
 
     logging.critical("Import is starting")
-
-    update_master_sheet(
+    download_and_process_update_sheet(
         blob_service_client,
         full_path,
-        masterSheetContainer,
-        masterSheetFileName,
-        orgSheetContainer,
-        orgSheetFileName,
         updatedSheetContainer,
         updatedSheetFileName
     )
 
-    generate_org_csv(
-        os.path.join(
-            full_path,
-            orgSheetFileName
-        ),
-        full_path,
-        ORGS_TO_IGNORE
-    )
-
-
-    generate_regions_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-    generate_brm_branches_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-
-
-    generate_jobs_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-
-    generate_buildings_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-
-
-    generate_skills_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-    generate_classifications_csv(
-        full_path
-    )
-
-    generate_employees_csv(
-        os.path.join(
-            full_path,
-            masterSheetFileName
-        ),
-        full_path
-    )
-
-    import_data_to_odoo(
+    odoo_employee_list = download_odoo_employee_list(
         odooUser,
         odooPassword,
         odooDatabase,
-        odooUrl,
-        full_path,
-        batchSize,
-        deltasOnly
+        odooUrl
     )
 
+    ad_employee_data = pandas.read_csv(
+        os.path.join(
+            full_path,
+            "employee-updated-data.csv"
+        ),
+        encoding="utf-8"
+    )
 
-    try:
-        master_sheet_client = blob_service_client.get_blob_client(
-            container = masterSheetContainer,
-            blob = masterSheetFileName
-        )
+    employee_sets = extract_employee_sets(
+        ad_employee_data,
+        odoo_employee_list
+    )
 
-        org_sheet_client = blob_service_client.get_blob_client(
-            container= orgSheetContainer,
-            blob = orgSheetFileName
-        )
-    except Exception as e:
-        logging.critical(
-            "Could not successfully connect to Blobs to upload data"
-        )
-        raise e
+    logging.debug(
+        "Odoo Only: " + str(len(employee_sets[0])) + 
+        " Odoo and AD: " + str(len(employee_sets[1])) + 
+        " AD Only: " + str(len(employee_sets[2]))
+    )
+    
+    
+    odoo_only_employees(
+        employee_sets[0],
+        odooUser,
+        odooPassword,
+        odooDatabase,
+        odooUrl
+    )
+    
 
-    with open(os.path.join(full_path, "employee_master_sheet.csv"), "rb") as f:
-        master_sheet_client.upload_blob(
-            f, overwrite = True
-        )
+    
+    intersection_employees(
+        employee_sets[1],
+        ad_employee_data,
+        odooUser,
+        odooPassword,
+        odooDatabase,
+        odooUrl
+    )
 
-    with open(os.path.join(full_path, "org-structure.csv"), "rb") as f:
-        org_sheet_client.upload_blob(
-            f, overwrite = True
-        )
-
-    calculate_diffs(
-        blob_service_client,
-        diffContainer,
-        full_path,
-        updatedSheetFileName,
+    ad_only_employees(
+        employee_sets[2],
+        ad_employee_data,
         odooUser,
         odooPassword,
         odooDatabase,
