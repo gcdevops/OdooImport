@@ -44,6 +44,8 @@ LOGGING_CONFIG = {
     }
 }
 
+
+
 logging.config.dictConfig(LOGGING_CONFIG)
 
 def main():
@@ -81,7 +83,6 @@ def main():
     updatedSheetFileName = os.environ.get(
         "UPDATE_SHEET_FILE_NAME"
     )
-
     if not connectionString:
         raise ValueError(
             "Environment variable AZURE_CONNECTION_STRING required"
@@ -94,6 +95,7 @@ def main():
             "UPDATE_SHEET_FILE_NAME " +
             "need to be specified"
         )
+
 
     full_path = os.path.abspath("./data")
     if not os.path.isdir(full_path):
@@ -160,7 +162,6 @@ def main():
         odooDatabase,
         odooUrl
     )
-
 
     ad_only_employees(
         employee_sets[2],
