@@ -2,7 +2,6 @@
 
 Automated Data Pipeline for importing employee information into Odoo 
 
-
 ## Environment Variables 
 
 ```AZURE_CONNECTION_STRING```: Connection string for the azure storage account 
@@ -32,3 +31,7 @@ Automated Data Pipeline for importing employee information into Odoo
 1. Simply set the environment variables specified above 
 
 2. Run ```docker-compose up --build```
+
+## License
+
+Unless otherwise noted, the source code of this project is covered under Crown Copyright, Government of Canada, and is distributed under the [MIT License](LICENSE).
